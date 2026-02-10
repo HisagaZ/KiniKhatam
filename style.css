@@ -17,7 +17,7 @@ body {
     margin: 0;
     min-height: 100vh;
     background: linear-gradient(-45deg,
-            #000000,
+            #06795c,
             #0d2622,
             #1a4d45,
             #091515);
@@ -458,4 +458,5 @@ button:hover {
     background: rgba(255, 255, 255, 0.2);
 
 }
+
 
