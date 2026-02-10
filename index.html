@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="Inter" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kini Khatam</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+    <!-- INPUT VIEW -->
+    <div id="inputView" class="view">
+      <h1><img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt=""></h1>
+      <div class="subtitle">"Keep track khatam journey"</div>
+
+      <!-- CIRCLE (Input) -->
+      <div class="circle-wrap">
+        <svg width="200" height="200">
+          <circle class="bg-circle" cx="100" cy="100" r="90" />
+          <circle class="progress-circle" id="inputProgressCircle" cx="100" cy="100" r="90" />
+        </svg>
+        <div class="circle-text">
+          <div class="value" id="pageValueInput">0</div>
+          <div class="total">/ 604</div>
+        </div>
+      </div>
+
+      <!-- INPUTS -->
+      <div class="field">
+        <label>Current Page</label>
+        <input type="number" id="pagesInput" placeholder="Enter current Quran pages" min="0" max="604">
+      </div>
+
+      <div class="field">
+        <label>Page(s) You've Read Today</label>
+        <input type="number" id="pagesTodayInput" placeholder="Enter pages you've read today" min="0" max="604">
+      </div>
+
+      <div class="field">
+        <label>Current Prayer</label>
+        <select id="prayerSelect">
+          <option value="fajr">Fajr</option>
+          <option value="zuhr">Zuhr</option>
+          <option value="asr">Asr</option>
+          <option value="maghrib">Maghrib</option>
+          <option value="isha">Isha</option>
+        </select>
+      </div>
+
+      <button onclick="calculateAndShowResult()">Calculate</button>
+    </div>
+
+    <!-- RESULT VIEW -->
+    <div id="resultView" class="view hidden">
+      <h1><img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt=""></h1>
+      <div class="subtitle">"Keep track khatam journey"</div>
+
+      <!-- CIRCLE (Result) -->
+      <div class="circle-wrap">
+        <svg width="200" height="200">
+          <circle class="bg-circle" cx="100" cy="100" r="90" />
+          <circle class="progress-circle" id="resultProgressCircle" cx="100" cy="100" r="90" />
+        </svg>
+        <div class="circle-text">
+          <div class="value" id="pageValueResult">0</div>
+          <div class="total">/ 604</div>
+        </div>
+      </div>
+
+
+      <div class="quote2">Today's Plan :</div>
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Pages Per<br>Prayer (Today)</div>
+          <div class="stat-value" id="pagesPerPrayerToday">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Remaining<br>Pages (Today)</div>
+          <div class="stat-value" id="remainingToday">0</div>
+        </div>
+      </div>
+
+
+      <div class="quote2">Future Suggestions :</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Daily<br>Pages</div>
+          <div class="stat-value" id="dailyPages">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Daily Pages<br>(per Prayer)</div>
+          <div class="stat-value" id="dailyPrayerPages">0</div>
+        </div>
+
+      </div>
+
+      <div class="quote">"Keep Istiqamah in ibadah"</div>
+      <div class="re-calculate" onclick="showInputView()">Re-Calculate</div>
+    </div>
+
+    <footer class="app-footer">
+      <span id="currentDate"></span> <br><br>
+      Made by
+      <a href="https://instagram.com/Intelektuah" target="_blank" rel="noopener noreferrer" class="footer-link">
+        <strong>@intelektuah</strong>
+      </a>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
