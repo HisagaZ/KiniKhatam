@@ -16,72 +16,51 @@
 body {
     margin: 0;
     min-height: 100vh;
-    background: linear-gradient(-45deg,
-            #06795c,
-            #0d2622,
-            #1a4d45,
-            #091515);
-    background-size: 400% 400%;
-    animation: gradientMove 18s ease infinite;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--text);
-    position: relative;
-    overflow: hidden;
-}
-
-@keyframes gradientMove {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-
-    background: linear-gradient(-45deg,
-            #000000,
-            #0d2622,
-            #1a4d45,
-            #091515);
-    background-size: 400% 400%;
-    animation: gradientMove 5s ease infinite;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* 👈 important */
-    color: var(--text);
+
     position: relative;
+    color: var(--text);
 
-    overflow-x: hidden;
-    /* 👈 allow vertical scroll */
-    overflow-y: auto;
+}
+
+/* Video background */
+#bgVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+
+
+    height: 100% !important;
+    width: 100% !important;
+    /* Keeps the proportions correct */
+    display: block;
+
+}
+
+/* Optional dark overlay for readability */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 10, 15, 0.55);
+    z-index: -1;
 }
 
 
-@keyframes floatGlow {
 
-    0%,
-    100% {
-        transform: translateY(0);
-    }
 
-    50% {
-        transform: translateY(-20px);
-    }
-}
+
+
 
 
 .app {
@@ -117,6 +96,17 @@ body {
 .app-footer strong {
     font-weight: 600;
     color: #ffffff;
+}
+
+.footer-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #1ec7b6;
 }
 
 
@@ -188,7 +178,7 @@ svg {
 
 .progress-circle {
     stroke: gold;
-    stroke-width: 10;
+    stroke-width: 20;
     fill: none;
     stroke-linecap: round;
     stroke-dasharray: 565;
@@ -456,7 +446,12 @@ button:hover {
 .glass:hover {
     transform: scale(1.1);
     background: rgba(255, 255, 255, 0.2);
-
 }
 
-
+.error-message {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 8px;
+    text-align: left;
+    display: none;
+}

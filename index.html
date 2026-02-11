@@ -9,6 +9,10 @@
 </head>
 
 <body>
+  <video autoplay muted loop playsinline id="bgVideo">
+    <source src="aurora.mp4" type="video/mp4">
+  </video>
+
   <div class="app">
     <!-- INPUT VIEW -->
     <div id="inputView" class="view">
@@ -47,6 +51,10 @@
           <option value="maghrib">Maghrib</option>
           <option value="isha">Isha</option>
         </select>
+      </div>
+
+      <div class="error-message" id="inputError">
+        Pages read today cannot be more than current page.
       </div>
 
       <button onclick="calculateAndShowResult()">Calculate</button>
@@ -101,7 +109,8 @@
       </div>
 
       <div class="quote">"Keep Istiqamah in ibadah"</div>
-      <div class="re-calculate" onclick="showInputView()">Re-Calculate</div>
+      <button onclick="showInputView()">Recalculate</button>
+
     </div>
 
     <footer class="app-footer">

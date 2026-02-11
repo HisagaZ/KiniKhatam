@@ -5,8 +5,9 @@ const inputProgressCircle = document.getElementById("inputProgressCircle");
 const resultProgressCircle = document.getElementById("resultProgressCircle");
 const inputView = document.getElementById("inputView");
 const resultView = document.getElementById("resultView");
+const errorEl = document.getElementById("inputError");
 
-// ===== INIT CIRCLES =====
+// ===== Initialize Circles =====
 if (inputProgressCircle) {
   inputProgressCircle.style.strokeDasharray = CIRCUMFERENCE;
   inputProgressCircle.style.strokeDashoffset = CIRCUMFERENCE;
@@ -16,7 +17,7 @@ if (resultProgressCircle) {
   resultProgressCircle.style.strokeDasharray = CIRCUMFERENCE;
 }
 
-// ===== CIRCLE UPDATE =====
+// ===== Circle Update =====
 function updateCircle(circle, value, total) {
   if (!circle) return;
   const percent = value / total;
@@ -24,37 +25,22 @@ function updateCircle(circle, value, total) {
   circle.style.strokeDashoffset = offset;
 }
 
-// ===== PREMIUM FLICKER ANIMATION =====
-function animateStat(element, finalValue, options = {}) {
-  if (!element) return;
+// ===== Premium Number Flicker Animation =====
+function animateNumber(elementId, finalValue, duration = 800) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
-  const {
-    duration = 800,
-    flickerMin = 1,
-    flickerMax = 99
-  } = options;
-
-  let start = null;
+  let startTime = null;
 
   function flicker(timestamp) {
-    if (!start) start = timestamp;
-    const elapsed = timestamp - start;
+    if (!startTime) startTime = timestamp;
+    const progress = timestamp - startTime;
 
-    const randomValue =
-      Math.floor(Math.random() * (flickerMax - flickerMin + 1)) + flickerMin;
-
-    element.textContent = randomValue;
-
-    if (elapsed < duration) {
+    if (progress < duration) {
+      el.textContent = Math.floor(Math.random() * 99) + 1;
       requestAnimationFrame(flicker);
     } else {
-      element.textContent = finalValue;
-
-      // subtle settle pop
-      element.style.transform = "scale(1.08)";
-      setTimeout(() => {
-        element.style.transform = "scale(1)";
-      }, 120);
+      el.textContent = finalValue;
     }
   }
 
@@ -67,114 +53,143 @@ function calculateAndShowResult() {
   const pagesTodayInput = document.getElementById("pagesTodayInput");
   const prayerSelect = document.getElementById("prayerSelect");
 
-  // 1. Inputs
-  let pagesRead = Math.max(0, Math.min(parseInt(pagesInput.value) || 0, TOTAL_PAGES));
-  let pagesToday = Math.max(0, parseInt(pagesTodayInput.value) || 0);
-  const selectedPrayer = prayerSelect ? prayerSelect.value : "fajr";
+  let pagesRead = parseInt(pagesInput.value);
+  let pagesToday = parseInt(pagesTodayInput.value);
 
-  // 2. Total pages left
-  const pagesLeftTotal = TOTAL_PAGES - pagesRead;
+  // ===== VALIDATION =====
 
-  // 3. Days remaining
+  // Current page required
+  if (isNaN(pagesRead) || pagesRead < 0) {
+    errorEl.textContent = "Please enter your current page.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  // Pages today cannot exceed current page
+  if (!isNaN(pagesToday) && pagesToday > pagesRead) {
+    errorEl.textContent =
+      "Pages read today cannot be more than current page.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  errorEl.style.display = "none";
+
+  // Safe values
+  pagesRead = Math.max(0, Math.min(pagesRead, TOTAL_PAGES));
+  pagesToday = Math.max(0, pagesToday || 0);
+
+  const selectedPrayer = prayerSelect
+    ? prayerSelect.value
+    : "fajr";
+
+  let pagesLeftTotal = TOTAL_PAGES - pagesRead;
+
+  // ===== DATE CALCULATION =====
   const targetDate = new Date("2026-03-19T23:59:59");
   const today = new Date();
+  const timeDiff = targetDate - today;
   const daysRemaining = Math.max(
     1,
-    Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24))
+    Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
   );
 
-  // 4. Remaining pages today
+  // ===== TODAY CALCULATION =====
   let remainingToday =
     Math.ceil(pagesLeftTotal / daysRemaining) - pagesToday;
   remainingToday = Math.max(0, remainingToday);
 
-  // 5. Prayers left today (5 → 1)
   let prayersLeftToday = 5;
+
   switch (selectedPrayer) {
-    case "fajr": prayersLeftToday = 5; break;
-    case "zuhr": prayersLeftToday = 4; break;
-    case "asr": prayersLeftToday = 3; break;
-    case "maghrib": prayersLeftToday = 2; break;
-    case "isha": prayersLeftToday = 1; break;
+    case "fajr":
+      prayersLeftToday = 5;
+      break;
+    case "zuhr":
+      prayersLeftToday = 4;
+      break;
+    case "asr":
+      prayersLeftToday = 3;
+      break;
+    case "maghrib":
+      prayersLeftToday = 2;
+      break;
+    case "isha":
+      prayersLeftToday = 1;
+      break;
   }
 
-  // 6. Pages per prayer today
-  const pagesPerPrayerToday =
-    prayersLeftToday > 0
-      ? Math.ceil(remainingToday / prayersLeftToday)
-      : 0;
+  let pagesPerPrayerToday = Math.ceil(
+    remainingToday / prayersLeftToday
+  );
 
-  // 7. Next day projection
+  // ===== FUTURE CALCULATION =====
   const pagesLeftForNextDay =
     pagesLeftTotal - pagesToday - remainingToday;
 
-  const remainingDaysNext = Math.max(1, daysRemaining - 1);
-  const dailyPagesNext =
-    Math.ceil(pagesLeftForNextDay / remainingDaysNext);
+  const remainingDaysNext = Math.max(
+    1,
+    daysRemaining - 1
+  );
 
-  const dailyPerPrayerNext = Math.ceil(dailyPagesNext / 5);
+  let dailyPagesNext = Math.ceil(
+    pagesLeftForNextDay / remainingDaysNext
+  );
 
-  // ===== UPDATE UI =====
+  let dailyPerPrayerNext = Math.ceil(
+    dailyPagesNext / 5
+  );
+
+  // ===== UPDATE INPUT CIRCLE =====
   updateCircle(inputProgressCircle, pagesRead, TOTAL_PAGES);
   document.getElementById("pageValueInput").textContent = pagesRead;
   document.getElementById("pageValueResult").textContent = pagesRead;
 
-  // 🔥 Animated stats
-  animateStat(
-    document.getElementById("remainingToday"),
-    remainingToday
-  );
-
-  animateStat(
-    document.getElementById("pagesPerPrayerToday"),
-    pagesPerPrayerToday,
-    { flickerMax: Math.max(20, pagesPerPrayerToday * 2) }
-  );
-
-  animateStat(
-    document.getElementById("dailyPages"),
-    dailyPagesNext
-  );
-
-  animateStat(
-    document.getElementById("dailyPrayerPages"),
-    dailyPerPrayerNext
-  );
-
+  // ===== SWITCH VIEW =====
   inputView.classList.add("hidden");
   resultView.classList.remove("hidden");
 
+  // ===== Animate Numbers =====
+  animateNumber("remainingToday", remainingToday);
+  animateNumber("pagesPerPrayerToday", pagesPerPrayerToday);
+  animateNumber("dailyPages", dailyPagesNext);
+  animateNumber("dailyPrayerPages", dailyPerPrayerNext);
+
+  // Animate result circle slightly delayed
   setTimeout(() => {
     updateCircle(resultProgressCircle, pagesRead, TOTAL_PAGES);
-  }, 50);
+  }, 150);
 }
 
-// ===== FOOTER DATE =====
-const dateEl = document.getElementById("currentDate");
-if (dateEl) {
-  dateEl.textContent = new Date().toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
-}
-
-// ===== VIEW SWITCH =====
+// ===== Return to Input =====
 function showInputView() {
   resultView.classList.add("hidden");
   inputView.classList.remove("hidden");
 }
 
-// ===== LIVE INPUT =====
-document.getElementById("pagesInput").addEventListener("input", (e) => {
-  let val = Math.max(0, Math.min(parseInt(e.target.value) || 0, TOTAL_PAGES));
-  document.getElementById("pageValueInput").textContent = val;
-  updateCircle(inputProgressCircle, val, TOTAL_PAGES);
+// ===== Live Input Circle Update =====
+document
+  .getElementById("pagesInput")
+  .addEventListener("input", (e) => {
+    let val = parseInt(e.target.value) || 0;
+    val = Math.max(0, Math.min(val, TOTAL_PAGES));
+
+    document.getElementById("pageValueInput").textContent = val;
+    updateCircle(inputProgressCircle, val, TOTAL_PAGES);
+  });
+
+// ===== DATE FOOTER =====
+const dateEl = document.getElementById("currentDate");
+const todayDate = new Date();
+
+const formattedDate = todayDate.toLocaleDateString("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
 });
 
-document.getElementById("pagesTodayInput")?.addEventListener("input", (e) => {
-  e.target.value = Math.max(0, parseInt(e.target.value) || 0);
-});
+if (dateEl) dateEl.textContent = formattedDate;
+
 
 
 
