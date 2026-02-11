@@ -2,16 +2,15 @@
 <html lang="en">
 
 <head>
-  <meta charset="Inter" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kini Khatam</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <video autoplay muted loop playsinline id="bgVideo">
-    <source src="aurora.mp4" type="video/mp4">
-  </video>
+  <!-- Background GIF -->
+  <img src="aurora.gif" alt="Aurora Background" id="bgGif">
 
   <div class="app">
     <!-- INPUT VIEW -->
@@ -37,20 +36,15 @@
         <input type="number" id="pagesInput" placeholder="Enter current Quran pages" min="0" max="604">
       </div>
 
+
       <div class="field">
         <label>Page(s) You've Read Today</label>
         <input type="number" id="pagesTodayInput" placeholder="Enter pages you've read today" min="0" max="604">
       </div>
 
       <div class="field">
-        <label>Current Prayer</label>
-        <select id="prayerSelect">
-          <option value="fajr">Fajr</option>
-          <option value="zuhr">Zuhr</option>
-          <option value="asr">Asr</option>
-          <option value="maghrib">Maghrib</option>
-          <option value="isha">Isha</option>
-        </select>
+        <label>Target Finish Date</label>
+        <input type="date" id="targetDateInput">
       </div>
 
       <div class="error-message" id="inputError">
@@ -78,40 +72,43 @@
       </div>
 
 
-      <div class="quote2">Today's Plan :</div>
-      <!-- STATS GRID -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Pages Per<br>Prayer (Today)</div>
-          <div class="stat-value" id="pagesPerPrayerToday">0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Remaining<br>Pages (Today)</div>
-          <div class="stat-value" id="remainingToday">0</div>
-        </div>
-      </div>
-
-
       <div class="quote2">Future Suggestions :</div>
-
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Daily<br>Pages</div>
+          <div class="stat-label">Daily Pages</div>
           <div class="stat-value" id="dailyPages">0</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-label">Daily Pages<br>(per Prayer)</div>
+          <div class="stat-label">Daily Pages (per Prayer)</div>
           <div class="stat-value" id="dailyPrayerPages">0</div>
         </div>
-
       </div>
 
-      <div class="quote">"Keep Istiqamah in ibadah"</div>
-      <button onclick="showInputView()">Recalculate</button>
+      <div class="quote2">Today's Plan :</div>
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-card" style="grid-column: span 2; height: 110px; text-align: center; align-items: center;">
+          <div class="stat-label">To Read Today</div>
+          <div class="stat-value" id="remainingToday">0</div>
+        </div>
 
+        <div class="stat-card">
+          <div class="stat-label">Pages Left</div>
+          <div class="stat-value" id="pagesLeft">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Days Left</div>
+          <div class="stat-value" id="diffTime">0</div>
+        </div>
+      </div>
+
+      <div class="quote" id="dailyQuote">"Keep Istiqamah in ibadah"</div>
+
+      <button onclick="showInputView()">Recalculate</button>
     </div>
+
 
     <footer class="app-footer">
       <span id="currentDate"></span> <br><br>

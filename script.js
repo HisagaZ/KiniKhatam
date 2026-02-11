@@ -1,194 +1,178 @@
+// ===== CONSTANTS =====
 const TOTAL_PAGES = 604;
-const CIRCUMFERENCE = 2 * Math.PI * 90;
 
-const inputProgressCircle = document.getElementById("inputProgressCircle");
-const resultProgressCircle = document.getElementById("resultProgressCircle");
+
+
+// ===== ELEMENTS =====
 const inputView = document.getElementById("inputView");
 const resultView = document.getElementById("resultView");
 const errorEl = document.getElementById("inputError");
+const inputProgressCircle = document.getElementById("inputProgressCircle");
+const resultProgressCircle = document.getElementById("resultProgressCircle");
+const pagesInputField = document.getElementById("pagesInput");
 
-// ===== Initialize Circles =====
-if (inputProgressCircle) {
-  inputProgressCircle.style.strokeDasharray = CIRCUMFERENCE;
-  inputProgressCircle.style.strokeDashoffset = CIRCUMFERENCE;
+// ===== QUOTES PRESET =====
+const quotes = [
+  "“The most beloved deeds to Allah are those done consistently, even if small.” — Sahih al-Bukhari & Sahih Muslim",
+  "“Take on only as much as you can do, for Allah does not grow weary until you do.” — Sahih al-Bukhari",
+  "“Do not belittle any good deed, even meeting your brother with a cheerful face.” — Sahih Muslim",
+  "“Give charity, even if it is a smile.” — Sahih Muslim",
+  "“The strong believer is better and more beloved to Allah than the weak believer…” — Sahih Muslim"
+];
+
+// ===== RANDOM QUOTE =====
+function displayRandomQuote() {
+  const quoteEl = document.getElementById("dailyQuote");
+  if (!quoteEl) return;
+
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  quoteEl.textContent = quotes[randomIndex];
 }
 
-if (resultProgressCircle) {
-  resultProgressCircle.style.strokeDasharray = CIRCUMFERENCE;
-}
-
-// ===== Circle Update =====
+// ===== CIRCLE UPDATE =====
 function updateCircle(circle, value, total) {
-  if (!circle) return;
-  const percent = value / total;
-  const offset = CIRCUMFERENCE - percent * CIRCUMFERENCE;
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+
+  circle.style.strokeDasharray = circumference;
+  const offset = circumference - (value / total) * circumference;
   circle.style.strokeDashoffset = offset;
 }
 
-// ===== Premium Number Flicker Animation =====
-function animateNumber(elementId, finalValue, duration = 800) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
+// ===== LIVE PROGRESS UPDATE =====
+pagesInputField.addEventListener("input", function () {
+  let value = parseInt(this.value);
 
-  let startTime = null;
+  if (isNaN(value) || value < 0) value = 0;
+  if (value > TOTAL_PAGES) value = TOTAL_PAGES;
 
-  function flicker(timestamp) {
-    if (!startTime) startTime = timestamp;
-    const progress = timestamp - startTime;
+  document.getElementById("pageValueInput").textContent = value;
+  updateCircle(inputProgressCircle, value, TOTAL_PAGES);
+});
 
-    if (progress < duration) {
-      el.textContent = Math.floor(Math.random() * 99) + 1;
-      requestAnimationFrame(flicker);
-    } else {
-      el.textContent = finalValue;
+// ===== NUMBER ANIMATION =====
+function animateNumber(id, target) {
+  const el = document.getElementById(id);
+  let current = 0;
+  const increment = Math.ceil(target / 40);
+
+  const interval = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
     }
-  }
-
-  requestAnimationFrame(flicker);
+    el.textContent = current;
+  }, 20);
 }
 
-// ===== MAIN CALCULATION =====
+// ===== CALCULATE FUNCTION =====
 function calculateAndShowResult() {
   const pagesInput = document.getElementById("pagesInput");
   const pagesTodayInput = document.getElementById("pagesTodayInput");
-  const prayerSelect = document.getElementById("prayerSelect");
+  const targetDateInput = document.getElementById("targetDateInput");
+
+  // Get the elements for results
+  const diffTimeEl = document.getElementById("diffTime");
 
   let pagesRead = parseInt(pagesInput.value);
   let pagesToday = parseInt(pagesTodayInput.value);
 
   // ===== VALIDATION =====
-
-  // Current page required
   if (isNaN(pagesRead) || pagesRead < 0) {
     errorEl.textContent = "Please enter your current page.";
     errorEl.style.display = "block";
     return;
   }
 
-  // Pages today cannot exceed current page
-  if (!isNaN(pagesToday) && pagesToday > pagesRead) {
-    errorEl.textContent =
-      "Pages read today cannot be more than current page.";
+  pagesToday = isNaN(pagesToday) ? 0 : pagesToday;
+
+  if (pagesToday > pagesRead) {
+    errorEl.textContent = "Pages read today cannot exceed current page.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  const targetDate = new Date(targetDateInput.value);
+  if (isNaN(targetDate.getTime())) {
+    errorEl.textContent = "Please enter a valid target date.";
     errorEl.style.display = "block";
     return;
   }
 
   errorEl.style.display = "none";
 
-  // Safe values
-  pagesRead = Math.max(0, Math.min(pagesRead, TOTAL_PAGES));
-  pagesToday = Math.max(0, pagesToday || 0);
+  // ===== SAFE VALUES =====
+  pagesRead = Math.min(Math.max(pagesRead, 0), TOTAL_PAGES);
+  pagesToday = Math.max(pagesToday, 0);
 
-  const selectedPrayer = prayerSelect
-    ? prayerSelect.value
-    : "fajr";
-
-  let pagesLeftTotal = TOTAL_PAGES - pagesRead;
-
-  // ===== DATE CALCULATION =====
-  const targetDate = new Date("2026-03-19T23:59:59");
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  targetDate.setHours(0, 0, 0, 0);
+
   const timeDiff = targetDate - today;
-  const daysRemaining = Math.max(
-    1,
-    Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
-  );
+  const daysRemaining = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
 
-  // ===== TODAY CALCULATION =====
-  let remainingToday =
-    Math.ceil(pagesLeftTotal / daysRemaining) - pagesToday;
-  remainingToday = Math.max(0, remainingToday);
+  const pagesLeft = TOTAL_PAGES - pagesRead;
 
-  let prayersLeftToday = 5;
+  // Calculate status at start of today to get a stable daily goal
+  const totalLeftAtStartOfToday = pagesLeft + pagesToday;
+  const dailySuggested = Math.ceil(totalLeftAtStartOfToday / daysRemaining);
 
-  switch (selectedPrayer) {
-    case "fajr":
-      prayersLeftToday = 5;
-      break;
-    case "zuhr":
-      prayersLeftToday = 4;
-      break;
-    case "asr":
-      prayersLeftToday = 3;
-      break;
-    case "maghrib":
-      prayersLeftToday = 2;
-      break;
-    case "isha":
-      prayersLeftToday = 1;
-      break;
-  }
+  // Remaining for today's quota
+  const remainingToday = Math.max(0, dailySuggested - pagesToday);
+  const dailyPerPrayer = Math.ceil(dailySuggested / 5);
 
-  let pagesPerPrayerToday = Math.ceil(
-    remainingToday / prayersLeftToday
-  );
-
-  // ===== FUTURE CALCULATION =====
-  const pagesLeftForNextDay =
-    pagesLeftTotal - pagesToday - remainingToday;
-
-  const remainingDaysNext = Math.max(
-    1,
-    daysRemaining - 1
-  );
-
-  let dailyPagesNext = Math.ceil(
-    pagesLeftForNextDay / remainingDaysNext
-  );
-
-  let dailyPerPrayerNext = Math.ceil(
-    dailyPagesNext / 5
-  );
-
-  // ===== UPDATE INPUT CIRCLE =====
-  updateCircle(inputProgressCircle, pagesRead, TOTAL_PAGES);
+  // ===== UPDATE UI =====
   document.getElementById("pageValueInput").textContent = pagesRead;
   document.getElementById("pageValueResult").textContent = pagesRead;
 
-  // ===== SWITCH VIEW =====
+  updateCircle(inputProgressCircle, pagesRead, TOTAL_PAGES);
+
   inputView.classList.add("hidden");
   resultView.classList.remove("hidden");
 
-  // ===== Animate Numbers =====
-  animateNumber("remainingToday", remainingToday);
-  animateNumber("pagesPerPrayerToday", pagesPerPrayerToday);
-  animateNumber("dailyPages", dailyPagesNext);
-  animateNumber("dailyPrayerPages", dailyPerPrayerNext);
+  animateNumber("pagesLeft", pagesLeft);
 
-  // Animate result circle slightly delayed
+  // Updating 'diffTime' element (labeled "Days Left" in HTML)
+  if (diffTimeEl) animateNumber("diffTime", daysRemaining);
+
+  animateNumber("remainingToday", remainingToday);
+  animateNumber("dailyPages", dailySuggested);
+  animateNumber("dailyPrayerPages", dailyPerPrayer);
+
   setTimeout(() => {
     updateCircle(resultProgressCircle, pagesRead, TOTAL_PAGES);
   }, 150);
+
+  displayRandomQuote();
 }
 
-// ===== Return to Input =====
+
+// ===== RETURN TO INPUT VIEW =====
 function showInputView() {
   resultView.classList.add("hidden");
   inputView.classList.remove("hidden");
 }
 
-// ===== Live Input Circle Update =====
-document
-  .getElementById("pagesInput")
-  .addEventListener("input", (e) => {
-    let val = parseInt(e.target.value) || 0;
-    val = Math.max(0, Math.min(val, TOTAL_PAGES));
+// ===== DISPLAY CURRENT DATE (AUTO LOCALE) =====
+function displayCurrentDate() {
+  const dateEl = document.getElementById("currentDate");
+  if (!dateEl) return;
 
-    document.getElementById("pageValueInput").textContent = val;
-    updateCircle(inputProgressCircle, val, TOTAL_PAGES);
-  });
+  const today = new Date();
 
-// ===== DATE FOOTER =====
-const dateEl = document.getElementById("currentDate");
-const todayDate = new Date();
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  };
 
-const formattedDate = todayDate.toLocaleDateString("en-GB", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+  dateEl.textContent = today.toLocaleDateString(navigator.language, options);
+}
 
-if (dateEl) dateEl.textContent = formattedDate;
+displayCurrentDate();
 
 
 
