@@ -9,116 +9,192 @@
 </head>
 
 <body>
+
+  <!-- SVG Filter for Glass Distortion -->
+  <svg style="display: none">
+    <filter id="glass-distortion">
+      <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+    </filter>
+  </svg>
+
   <!-- Background GIF -->
   <img src="aurora.gif" alt="Aurora Background" id="bgGif">
 
-  <div class="app">
-    <!-- INPUT VIEW -->
-    <div id="inputView" class="view">
-      <h1><img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt=""></h1>
-      <div class="subtitle">"Keep track khatam journey"</div>
+  <div class="lang-toggle" onclick="toggleLanguage()">
+    <span id="langDisplay">EN</span>
+  </div>
 
-      <!-- CIRCLE (Input) -->
-      <div class="circle-wrap">
-        <svg width="200" height="200">
-          <circle class="bg-circle" cx="100" cy="100" r="90" />
-          <circle class="progress-circle" id="inputProgressCircle" cx="100" cy="100" r="90" />
-        </svg>
-        <div class="circle-text">
-          <div class="value" id="pageValueInput">0</div>
-          <div class="total">/ 604</div>
+  <!-- MAIN LIQUID GLASS CARD -->
+  <div class="glass-card main-card">
+    <div class="glass-filter"></div>
+    <div class="glass-overlay"></div>
+    <div class="glass-specular"></div>
+
+    <div class="glass-content app">
+
+      <!-- INPUT VIEW -->
+      <div id="inputView" class="view">
+        <h1>
+          <img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt="">
+        </h1>
+
+        <div class="subtitle" data-i18n="subtitle">
+          "Keep track khatam journey"
         </div>
+
+        <!-- CIRCLE -->
+        <div class="circle-wrap">
+          <svg width="200" height="200">
+            <circle class="bg-circle" cx="100" cy="100" r="90" />
+            <circle class="progress-circle" id="inputProgressCircle" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="circle-text">
+            <div class="value" id="pageValueInput">0</div>
+            <div class="total">/ 604</div>
+          </div>
+        </div>
+
+        <!-- INPUTS -->
+        <div class="field">
+          <label data-i18n="currentPage">Current Page</label>
+          <input type="number" id="pagesInput" data-i18n-placeholder="placeholderCurrent"
+            placeholder="Enter current Quran pages" min="0" max="604">
+        </div>
+
+        <div class="field">
+          <label data-i18n="pagesReadToday">Page(s) You've Read Today</label>
+          <input type="number" id="pagesTodayInput" data-i18n-placeholder="placeholderToday"
+            placeholder="Enter pages you've read today" min="0" max="604">
+        </div>
+
+        <div class="field">
+          <label data-i18n="targetDate">Target Finish Date</label>
+          <input type="date" id="targetDateInput">
+        </div>
+
+        <div class="error-message" id="inputError" data-i18n="errorPagesToday">
+          Pages read today cannot be more than current page.
+        </div>
+
+        <button onclick="calculateAndShowResult()" data-i18n="calculate">
+          Calculate
+        </button>
       </div>
 
-      <!-- INPUTS -->
-      <div class="field">
-        <label>Current Page</label>
-        <input type="number" id="pagesInput" placeholder="Enter current Quran pages" min="0" max="604">
+      <!-- RESULT VIEW -->
+      <div id="resultView" class="view hidden">
+        <h1>
+          <img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt="">
+        </h1>
+
+        <div class="subtitle" data-i18n="subtitle">
+          "Keep track khatam journey"
+        </div>
+
+        <!-- RESULT CIRCLE -->
+        <div class="circle-wrap">
+          <svg width="200" height="200">
+            <circle class="bg-circle" cx="100" cy="100" r="90" />
+            <circle class="progress-circle" id="resultProgressCircle" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="circle-text">
+            <div class="value" id="pageValueResult">0</div>
+            <div class="total">/ 604</div>
+          </div>
+        </div>
+
+        <!-- TODAY PLAN -->
+        <div class="quote2" data-i18n="todaysPlan">
+          Today's Plan :
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="glass-card stat-card today-card" style="grid-column: span 2;">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+              <div class="stat-label" data-i18n="toReadToday">To Read Today</div>
+              <div class="stat-value" id="remainingToday">0</div>
+            </div>
+          </div>
+
+          <div class="glass-card stat-card">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+              <div class="stat-label" data-i18n="dailyPages">Daily Pages</div>
+              <div class="stat-value" id="dailyPages">0</div>
+            </div>
+          </div>
+
+          <div class="glass-card stat-card">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+              <div class="stat-label" data-i18n="dailyPrayer">Daily Pages (per Prayer)</div>
+              <div class="stat-value" id="dailyPrayerPages">0</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COUNTDOWN -->
+        <div class="quote2" data-i18n="countdown">
+          Countdown :
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="glass-card stat-card">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+              <div class="stat-label" data-i18n="pagesLeft">Pages Left</div>
+              <div class="stat-value" id="pagesLeft">0</div>
+            </div>
+          </div>
+
+          <div class="glass-card stat-card">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+              <div class="stat-label" data-i18n="daysLeft">Days Left</div>
+              <div class="stat-value" id="diffTime">0</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="quote" id="dailyQuote">
+          "Keep Istiqamah in ibadah"
+        </div>
+
+        <button onclick="showInputView()" data-i18n="recalculate">
+          Recalculate
+        </button>
+
       </div>
 
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <span id="currentDate"></span><br><br>
+        <span data-i18n="madeBy">Made by</span>
+        <a href="https://instagram.com/Intelektuah" target="_blank" rel="noopener noreferrer" class="footer-link">
+          <strong>@intelektuah</strong>
+        </a>
+      </footer>
 
-      <div class="field">
-        <label>Page(s) You've Read Today</label>
-        <input type="number" id="pagesTodayInput" placeholder="Enter pages you've read today" min="0" max="604">
-      </div>
-
-      <div class="field">
-        <label>Target Finish Date</label>
-        <input type="date" id="targetDateInput">
-      </div>
-
-      <div class="error-message" id="inputError">
-        Pages read today cannot be more than current page.
-      </div>
-
-      <button onclick="calculateAndShowResult()">Calculate</button>
     </div>
+  </div>
 
-    <!-- RESULT VIEW -->
-    <div id="resultView" class="view hidden">
-      <h1><img src="Kini Khatam Logo.png" class="h1-img" width="150px" alt=""></h1>
-      <div class="subtitle">"Keep track khatam journey"</div>
-
-      <!-- CIRCLE (Result) -->
-      <div class="circle-wrap">
-        <svg width="200" height="200">
-          <circle class="bg-circle" cx="100" cy="100" r="90" />
-          <circle class="progress-circle" id="resultProgressCircle" cx="100" cy="100" r="90" />
-        </svg>
-        <div class="circle-text">
-          <div class="value" id="pageValueResult">0</div>
-          <div class="total">/ 604</div>
-        </div>
-      </div>
-
-
-      <div class="quote2">Future Suggestions :</div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Daily Pages</div>
-          <div class="stat-value" id="dailyPages">0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Daily Pages (per Prayer)</div>
-          <div class="stat-value" id="dailyPrayerPages">0</div>
-        </div>
-      </div>
-
-      <div class="quote2">Today's Plan :</div>
-      <!-- STATS GRID -->
-      <div class="stats-grid">
-        <div class="stat-card" style="grid-column: span 2; height: 110px; text-align: center; align-items: center;">
-          <div class="stat-label">To Read Today</div>
-          <div class="stat-value" id="remainingToday">0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Pages Left</div>
-          <div class="stat-value" id="pagesLeft">0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-label">Days Left</div>
-          <div class="stat-value" id="diffTime">0</div>
-        </div>
-      </div>
-
-      <div class="quote" id="dailyQuote">"Keep Istiqamah in ibadah"</div>
-
-      <button onclick="showInputView()">Recalculate</button>
-    </div>
-
-
-    <footer class="app-footer">
-      <span id="currentDate"></span> <br><br>
-      Made by
-      <a href="https://instagram.com/Intelektuah" target="_blank" rel="noopener noreferrer" class="footer-link">
-        <strong>@intelektuah</strong>
-      </a>
-    </footer>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>
