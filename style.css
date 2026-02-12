@@ -103,6 +103,10 @@ body::before {
     padding: 24px;
 }
 
+.main-card:hover {
+    transform: none;
+}
+
 /* Remove old .app styling */
 .app {
     background: transparent !important;
@@ -407,3 +411,4 @@ button:hover {
     }
 
 }
+
