@@ -7,18 +7,15 @@ const translations = {
     subtitle: '"Keep track khatam journey"',
     currentPage: "Current Page",
     placeholderCurrent: "Enter current Quran pages",
-    pagesReadToday: "Page(s) You've Read Today",
-    placeholderToday: "Enter pages you've read today",
     targetDate: "Target Finish Date",
     errorCurrent: "Please enter your current page.",
     errorValidDate: "Please enter a valid target date.",
-    errorPagesToday: "Pages read today cannot exceed current page.",
     calculate: "Calculate",
     futureSuggestions: "Future Suggestions :",
     dailyPages: "Daily Pages",
     dailyPrayer: "Daily Pages (per Prayer)",
     todaysPlan: "Today's Plan :",
-    toReadToday: "To Read Today",
+    juzCompleted: "Juz Completed",
     pagesLeft: "Pages Left",
     daysLeft: "Days Left",
     countdown: "Countdown :",
@@ -29,18 +26,15 @@ const translations = {
     subtitle: '"Jejak perjalanan khatam anda"',
     currentPage: "Halaman Semasa",
     placeholderCurrent: "Masukkan halaman Al-Quran semasa",
-    pagesReadToday: "Halaman Dibaca Hari Ini",
-    placeholderToday: "Masukkan halaman yang dibaca hari ini",
     targetDate: "Tarikh Sasaran Selesai",
     errorCurrent: "Sila masukkan halaman semasa anda.",
     errorValidDate: "Sila masukkan tarikh sasaran yang sah.",
-    errorPagesToday: "Halaman hari ini tidak boleh melebihi halaman semasa.",
     calculate: "Kira",
     futureSuggestions: "Cadangan Masa Depan :",
     dailyPages: "Halaman Harian",
     dailyPrayer: "Halaman Harian (setiap Solat)",
     todaysPlan: "Rancangan Hari Ini :",
-    toReadToday: "Untuk Dibaca Hari Ini",
+    juzCompleted: "Juz Telah Dibaca",
     pagesLeft: "Halaman Berbaki",
     daysLeft: "Hari Berbaki",
     countdown: "Kiraan Detik :",
@@ -155,18 +149,20 @@ function animateNumber(id, target) {
 
 // ===== CALCULATE FUNCTION =====
 function calculateAndShowResult() {
-  const pagesInput = document.getElementById("pagesInput");
+  const pagesInput = document.getElementById("pagesInput"); // current page
   const targetDateInput = document.getElementById("targetDateInput");
   const diffTimeEl = document.getElementById("diffTime");
 
-  let pagesRead = parseInt(pagesInput.value);
+  let currentPage = parseInt(pagesInput.value);
 
   // ===== VALIDATION =====
-  if (isNaN(pagesRead) || pagesRead < 0) {
+
+  if (isNaN(currentPage) || currentPage < 0) {
     errorEl.textContent = translations[currentLang].errorCurrent;
     errorEl.style.display = "block";
     return;
   }
+
 
   const targetDate = new Date(targetDateInput.value);
   if (isNaN(targetDate.getTime())) {
@@ -177,7 +173,10 @@ function calculateAndShowResult() {
 
   errorEl.style.display = "none";
 
-  pagesRead = Math.min(Math.max(pagesRead, 0), TOTAL_PAGES);
+  // Clamp values safely
+  currentPage = Math.min(Math.max(currentPage, 0), TOTAL_PAGES);
+
+  // ===== DATE CALCULATION =====
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -186,26 +185,25 @@ function calculateAndShowResult() {
   const timeDiff = targetDate - today;
   const daysRemaining = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
 
-  const pagesLeft = TOTAL_PAGES - pagesRead;
+  // ===== CORE CALCULATIONS =====
 
-  // ===== SMART PROGRESS TRACKING =====
-  const previousPage = parseInt(localStorage.getItem("lastPage")) || pagesRead;
-  const progressToday = Math.max(0, pagesRead - previousPage);
+  const pagesLeft = TOTAL_PAGES - currentPage;
 
-  const totalLeftAtStartOfToday = TOTAL_PAGES - previousPage;
-  const dailySuggested = Math.ceil(totalLeftAtStartOfToday / daysRemaining);
+  // 1️⃣ DAILY PAGES (Fixed required average)
+  const dailySuggested = Math.ceil(pagesLeft / daysRemaining);
 
-  const remainingToday = Math.max(0, dailySuggested - progressToday);
+  // 2️⃣ JUZ COMPLETED (Approx 20 pages per Juz)
+  const juzCompleted = Math.floor(currentPage / 20);
+
+  // 3️⃣ DAILY PER PRAYER (Based on required average)
   const dailyPerPrayer = Math.ceil(dailySuggested / 5);
 
-  // Save latest page
-  localStorage.setItem("lastPage", pagesRead);
-
   // ===== UPDATE UI =====
-  document.getElementById("pageValueInput").textContent = pagesRead;
-  document.getElementById("pageValueResult").textContent = pagesRead;
 
-  updateCircle(inputProgressCircle, pagesRead, TOTAL_PAGES);
+  document.getElementById("pageValueInput").textContent = currentPage;
+  document.getElementById("pageValueResult").textContent = currentPage;
+
+  updateCircle(inputProgressCircle, currentPage, TOTAL_PAGES);
 
   inputView.classList.add("hidden");
   resultView.classList.remove("hidden");
@@ -214,16 +212,17 @@ function calculateAndShowResult() {
 
   if (diffTimeEl) animateNumber("diffTime", daysRemaining);
 
-  animateNumber("remainingToday", remainingToday);
+  animateNumber("juzCompleted", juzCompleted);
   animateNumber("dailyPages", dailySuggested);
   animateNumber("dailyPrayerPages", dailyPerPrayer);
 
   setTimeout(() => {
-    updateCircle(resultProgressCircle, pagesRead, TOTAL_PAGES);
+    updateCircle(resultProgressCircle, currentPage, TOTAL_PAGES);
   }, 150);
 
   displayRandomQuote();
 }
+
 
 
 

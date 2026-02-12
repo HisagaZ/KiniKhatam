@@ -330,7 +330,14 @@ button:hover {
     font-size: 42px;
     font-weight: bold;
     line-height: 1;
+}
 
+.stat-total {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: normal;
+    margin-left: 4px;
+    vertical-align: middle;
 }
 
 /* ===== FOOTER ===== */
@@ -409,6 +416,4 @@ button:hover {
         --bg-color: rgba(0, 0, 0, 0.25);
         --highlight: rgba(255, 255, 255, 0.15);
     }
-
 }
-

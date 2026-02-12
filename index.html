@@ -62,11 +62,6 @@
             placeholder="Enter current Quran pages" min="0" max="604">
         </div>
 
-        <div class="field">
-          <label data-i18n="pagesReadToday">Page(s) You've Read Today</label>
-          <input type="number" id="pagesTodayInput" data-i18n-placeholder="placeholderToday"
-            placeholder="Enter pages you've read today" min="0" max="604">
-        </div>
 
         <div class="field">
           <label data-i18n="targetDate">Target Finish Date</label>
@@ -116,8 +111,8 @@
             <div class="glass-overlay"></div>
             <div class="glass-specular"></div>
             <div class="glass-content">
-              <div class="stat-label" data-i18n="toReadToday">To Read Today</div>
-              <div class="stat-value" id="remainingToday">0</div>
+              <div class="stat-label" data-i18n="dailyPrayer">Daily Pages (per Prayer)</div>
+              <div class="stat-value" id="dailyPrayerPages">0</div>
             </div>
           </div>
 
@@ -136,8 +131,10 @@
             <div class="glass-overlay"></div>
             <div class="glass-specular"></div>
             <div class="glass-content">
-              <div class="stat-label" data-i18n="dailyPrayer">Daily Pages (per Prayer)</div>
-              <div class="stat-value" id="dailyPrayerPages">0</div>
+              <div class="stat-label" data-i18n="juzCompleted">Juz Completed</div>
+              <div class="stat-value">
+                <span id="juzCompleted">0</span><span class="stat-total">/ 30</span>
+              </div>
             </div>
           </div>
 
