@@ -10,6 +10,8 @@
     font-family: inter, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ===== FIXED BACKGROUND IMAGE ===== */
+
 body {
     margin: 0;
     min-height: 100vh;
@@ -20,31 +22,25 @@ body {
     align-items: flex-start;
     position: relative;
     color: var(--text);
+
+    /* 🔥 Fixed aurora background */
+    background-image: url("aurora5.jpg");
+    background-position: center center;
+    background-size: cover;
+    /* crop instead of stretch */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    /* stays still */
 }
 
 /* ===== BACKGROUND ===== */
 
 /* ===== FIXED BACKGROUND IMAGE ===== */
 
-#bgGif {
-    position: fixed;
-    top: 50%;
-    left: 50%;
 
-    /* 👇 FIXED SIZE — change once only */
-    width: 1920px;
-    height: 1080px;
-
-    transform: translate(-50%, -50%);
-
-
-    object-fit: contain;
-    /* keeps original proportions */
-    pointer-events: none;
-    user-select: none;
-
-    z-index: -2;
-}
 
 body::before {
     content: "";
