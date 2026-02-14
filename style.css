@@ -24,7 +24,7 @@ body {
 
 /* ===== BACKGROUND ===== */
 
-#bgGif {
+#bgVideo {
     position: fixed;
     top: 0;
     left: 0;
@@ -32,6 +32,7 @@ body {
     height: 100%;
     object-fit: cover;
     z-index: -2;
+    pointer-events: none;
 }
 
 body::before {
