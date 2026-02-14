@@ -36,7 +36,7 @@ body {
     height: 1080px;
 
     transform: translate(-50%, -50%);
-    will-change: transform;
+
 
     object-fit: contain;
     /* keeps original proportions */
